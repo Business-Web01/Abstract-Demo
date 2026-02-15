@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop - Abstract Earth</title>
+    <style>
+        :root {
+            --bg-color: #f8f8f8;
+            --text-main: #111;
+            --glow-tr: radial-gradient(circle at top right, rgba(0, 200, 255, 0.15) 0%, transparent 60%);
+            --glow-bl: radial-gradient(circle at bottom left, rgba(0, 255, 150, 0.15) 0%, transparent 60%);
+            --earth-green: #008f5d;
+            --sale-red: #cc0000;
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Inter', sans-serif; 
+        }
+
+        body {
+            background-color: var(--bg-color);
+            height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        /* Framed Wrapper */
+        .page-wrapper {
+            width: 100%; 
+            height: 100%;
+            border: 1.5px solid #000;
+            border-radius: 30px;
+            background-image: var(--glow-tr), var(--glow-bl);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 40px;
+            position: relative;
+        }
+
+        /* Nav - Centered Links */
+        nav {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo { 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            text-decoration: none; 
+            color: #000; 
+            font-size: 16px; 
+        }
+
+        .nav-links { 
+            display: flex; 
+            gap: 20px; 
+            justify-content: center; 
+        }
+
+        .nav-links a { 
+            text-decoration: none; 
+            color: #888; 
+            font-size: 14px; 
+            text-transform: uppercase; 
+            transition: 0.3s; 
+        }
+
+        .nav-links a:hover, 
+        .nav-links a.active { 
+            color: #000; 
+            font-weight: 600; 
+        }
+
+        .cart-status { 
+            text-align: right; 
+            font-weight: 600; 
+            font-size: 13px; 
+        }
+
+        /* Collection Header */
+        .collection-header {
+            text-align: center;
+            font-size: clamp(44px, 5vw, 32px);
+            font-weight: 900;
+            letter-spacing: 2px;
+            margin-top: 10px;
+            color: #000;
+            animation: fadeIn 1.5s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(10px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        /* Ticker Area */
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            padding: 10px 0;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ticker {
+            white-space: nowrap;
+            display: inline-block;
+            color: var(--sale-red);
+            font-weight: 800;
+            font-size: 14px;
+            animation: ticker-move 50s linear infinite;
+            padding-left: 100%;
+        }
+
+        @keyframes ticker-move {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-200%); }
+        }
+
+        /* Scroll Area */
+        .shop-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+            margin-top: 10px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            padding-bottom: 40px;
+        }
+
+        /* 3D Flip Card */
+        .card-viewport { 
+            perspective: 1000px; 
+            width: 100%; 
+            aspect-ratio: 1 / 1.2; 
+        }
+
+        .card-inner {
+            position: relative; 
+            width: 100%; 
+            height: 100%;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .card-viewport:hover .card-inner { 
+            transform: rotateY(180deg); 
+        }
+
+        .card-front, .card-back {
+            position: absolute; 
+            width: 100%; 
+            height: 100%;
+            backface-visibility: hidden; 
+            border-radius: 20px;
+            background: #fff; 
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .card-back { 
+            transform: rotateY(180deg); 
+        }
+
+        .card-front img, 
+        .card-back img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            border-radius: 20px; 
+        }
+
+        /* Details */
+        .info-row { 
+            display: flex; 
+            justify-content: space-between; 
+            font-weight: 700; 
+            margin-top: 10px; 
+        }
+
+        .selectors { 
+            display: flex; 
+            gap: 5px; 
+            margin-top: 5px; 
+        }
+
+        select { 
+            flex: 1; 
+            padding: 8px; 
+            border-radius: 10px; 
+            border: 1px solid #ddd; 
+            font-size: 11px; 
+            outline: none; 
+        }
+
+        .add-btn {
+            width: 100%; 
+            padding: 12px; 
+            background: #000; 
+            color: #fff;
+            border: none; 
+            border-radius: 12px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            margin-top: 8px;
+            transition: 0.3s;
+        }
+
+        .add-btn:hover { 
+            background: var(--earth-green); 
+        }
+
+        /* Pop-up Modals */
+        .modal-overlay {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: rgba(0,0,0,0.4); 
+            backdrop-filter: blur(4px);
+            display: none; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 2000;
+        }
+
+        .modal-box {
+            background: #fff; 
+            padding: 30px; 
+            border-radius: 25px; 
+            text-align: center;
+            border: 2.5px solid #000; 
+            width: 90%; 
+            max-width: 320px;
+        }
+
+        .modal-box p { 
+            margin-bottom: 20px; 
+            font-weight: 600; 
+            font-size: 16px; 
+            line-height: 1.4; 
+        }
+
+        .modal-box button {
+            background: #000; 
+            color: #fff; 
+            border: none; 
+            padding: 12px;
+            border-radius: 12px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            width: 100%; 
+        }
+
+        /* Custom Scrollbar */
+        .shop-content::-webkit-scrollbar { 
+            width: 4px; 
+        }
+
+        .shop-content::-webkit-scrollbar-thumb { 
+            background: #000; 
+            border-radius: 10px; 
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) { 
+            .product-grid { 
+                grid-template-columns: repeat(2, 1fr); 
+            } 
+        }
+
+        @media (max-width: 600px) {
+            .product-grid { 
+                grid-template-columns: 1fr; 
+            }
+            nav { 
+                grid-template-columns: 1fr 1fr; 
+            }
+            .nav-links { 
+                display: none; 
+            }
+            .page-wrapper { 
+                padding: 20px; 
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-wrapper">
+        <nav>
+            <a href="index.html" class="logo">Abstract<br>Earth</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="shop.html" class="active">Shop</a>
+                <a href="checkout.html">Checkout</a>    
+
+            </div>
+            <div class="cart-status">
+                <a href="checkout.html" id="cartCount" style="text-decoration:none; color:black;">cart (0)</a>
+            </div>
+        </nav>
+
+        <h2 class="collection-header">OUR COLLECTION</h2>
+        
+        <div class="ticker-wrap">
+            <div class="ticker">
+                R100 OFF SALE — LIMITED TIME ONLY — FREE SHIPPING ON ORDERS OVER R1000 — R100 OFF SALE — LIMITED TIME ONLY — FREE SHIPPING ON ORDERS OVER R1000 — 
+            </div>
+        </div>
+
+        <div class="shop-content">
+            <div class="product-grid" id="mainGrid">
+                
+                <div class="product-card">
+                    <div class="card-viewport">
+                        <div class="card-inner">
+                            <div class="card-front"><img src="jesus saves.jpg" alt="Front"></div>
+                            <div class="card-back"><img src="jesus saves.jpg" alt="Back"></div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <span>Jesus Saves Tshirt</span>
+                        <span>R450</span>
+                    </div>
+                    <div class="selectors">
+                        <select class="size">
+                            <option value="">Size</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                        </select>
+                        <select class="color">
+                            <option value="">Color</option>
+                            <option value="Black">Black</option>
+                        </select>
+                    </div>
+                    <button class="add-btn" onclick="handleAddToCart('Jesus Saves Tshirt', 450, this)">Add to Cart</button>
+                </div>
+
+
+                  <div class="product-card">
+                    <div class="card-viewport">
+                   <div class="card-inner">
+                            <div class="card-front"><img src="god's got this.jpg" alt="Front"></div>
+                            <div class="card-back"><img src="god's got this.jpg" alt="Back"></div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <span>'God's Got This' Tshirt</span>
+                        <span>R650</span>
+                    </div>
+                    <div class="selectors">
+                        <select class="size">
+                            <option value="">Size</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                        </select>
+                        <select class="color">
+                            <option value="">Color</option>
+                            <option value="Black">Black</option>
+                        </select>
+                    </div>
+                    <button class="add-btn" onclick="handleAddToCart('God's Got This', 650, this)">Add to Cart</button>
+                </div>
+
+
+                 <div class="product-card">
+                    <div class="card-viewport">
+                   <div class="card-inner">
+                            <div class="card-front"><img src="your-image-front.jpg" alt="Front"></div>
+                            <div class="card-back"><img src="your-image-back.jpg" alt="Back"></div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <span>Jesus Saves Tee</span>
+                        <span>R400</span>
+                    </div>
+                    <div class="selectors">
+                        <select class="size">
+                            <option value="">Size</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                        </select>
+                        <select class="color">
+                            <option value="">Color</option>
+                            <option value="Black">Black</option>
+                        </select>
+                    </div>
+                    <button class="add-btn" onclick="handleAddToCart('Jesus Saves Tee', 400, this)">Add to Cart</button>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+
+    <div id="statusModal" class="modal-overlay">
+        <div class="modal-box">
+            <p id="modalMsg"></p>
+            <button onclick="closeModal()">OKAY</button>
+        </div>
+    </div>
+
+    <script>
+        function handleAddToCart(name, price, btn) {
+            const card = btn.closest('.product-card');
+            const size = card.querySelector('.size').value;
+            const color = card.querySelector('.color').value;
+
+            if (!size || !color) {
+                showModal("Please select your size and color before adding to the cart.");
+                return;
+            }
+
+            const item = { name, price, size, color };
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.push(item);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            
+            updateCartDisplay();
+            showModal(`${name} has been added to cart!`);
+        }
+
+        function showModal(msg) {
+            document.getElementById('modalMsg').innerText = msg;
+            document.getElementById('statusModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('statusModal').style.display = 'none';
+        }
+
+        function updateCartDisplay() {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            document.getElementById('cartCount').innerText = `cart (${cart.length})`;
+        }
+
+        updateCartDisplay();
+    </script>
+</body>
+</html>

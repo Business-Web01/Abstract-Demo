@@ -1,0 +1,62 @@
+<form action="https://www.payfast.co.za/eng/process" method="POST" id="checkout-form">
+    
+    <input type="hidden" name="merchant_id" value="10000100"> <input type="hidden" name="merchant_key" value="46f0cd694581a"> <input type="hidden" name="return_url" value="https://yourwebsite.com/success.html">
+    <input type="hidden" name="cancel_url" value="https://yourwebsite.com/checkout.html">
+
+    <div class="checkout-grid">
+        <div class="forms-column">
+            <div class="section-box">
+                <h2>1. Shipping Details</h2>
+                <input type="text" name="name_first" placeholder="Full Name" required>
+                <div class="input-row">
+                    <input type="email" name="email_address" placeholder="Email" required>
+                    <input type="tel" placeholder="Phone Number">
+                </div>
+                <input type="text" placeholder="Street Address" required>
+                <div class="input-row">
+                    <input type="text" placeholder="City" required>
+                    <input type="text" placeholder="Province" required>
+                </div>
+            </div>
+
+            <div class="section-box">
+                <h2>2. Shipping Method</h2>
+                <label class="shipping-option">
+                    <input type="radio" name="shipping_choice" value="100" onclick="updateTotals(100)" required>
+                    <span class="ship-text">Local Shipping (6-8 days)</span>
+                    <span class="ship-price">R100</span>
+                </label>
+                <label class="shipping-option">
+                    <input type="radio" name="shipping_choice" value="200" onclick="updateTotals(200)">
+                    <span class="ship-text">Standard Option (3-5 days)</span>
+                    <span class="ship-price">R200</span>
+                </label>
+            </div>
+
+            <input type="hidden" name="amount" id="payfast-amount" value="0.00">
+            <input type="hidden" name="item_name" id="payfast-item-name" value="Abstract Earth Order">
+        </div>
+
+        <div class="summary-column">
+            <div class="section-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2>Order Summary</h2>
+                    <button type="button" class="clear-cart-btn" onclick="clearCart()">CLEAR CART</button>
+                </div>
+                <div class="cart-container" id="cart-display"></div>
+                
+                <div style="margin-top:20px; border-top: 1.5px solid #000; padding-top:20px;">
+                    <div style="display:flex; justify-content:space-between; font-weight:900; font-size:24px;">
+                        <span>Total</span><span id="grand-total">R0.00</span>
+                    </div>
+                    
+                    <button type="submit" class="pay-btn" onclick="validateCheckout(event)">Confirm & Pay via PayFast</button>
+                    
+                    <div class="payment-icons" style="justify-content: center; margin-top: 15px;">
+                        <img src="https://www.payfast.co.za/images/buttons/light-small-paynow.png" alt="Pay Now">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

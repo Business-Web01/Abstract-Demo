@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Abstract Earth</title>
+    <style>
+        :root {
+            --bg-color: #f8f8f8;
+            --text-color: #111;
+            --glow-tl: radial-gradient(circle at top left, rgba(0, 200, 255, 0.18) 0%, rgba(248, 248, 248, 0) 45%);
+            --glow-br: radial-gradient(circle at bottom right, rgba(0, 255, 150, 0.18) 0%, rgba(248, 248, 248, 0) 45%);
+            --accent-green: #76e094;
+            --danger-red: #ff4d4d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .page-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            border: 1.5px solid #000;
+            border-radius: 30px;
+            position: relative;
+            background: var(--glow-tl), var(--glow-br), var(--bg-color);
+            padding: 40px;
+        }
+
+        nav { display: flex; justify-content: space-between; margin-bottom: 30px; align-items: center; }
+        .logo { font-weight: 800; font-size: 18px; line-height: 1; }
+
+        .clear-cart-btn {
+            background: var(--danger-red);
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .clear-cart-btn:hover { background: #cc0000; transform: scale(1.05); }
+
+        .checkout-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 40px; }
+
+        h2 { font-size: 16px; font-weight: 800; margin-bottom: 20px; text-transform: uppercase; border-bottom: 1.5px solid #000; padding-bottom: 5px; }
+
+        .section-box { margin-bottom: 30px; }
+        input, select {
+            width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #000;
+            border-radius: 10px; background: rgba(255, 255, 255, 0.7); font-size: 14px;
+        }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        /* Shipping Options */
+        .shipping-option {
+            border: 1px solid #000; border-radius: 12px; padding: 15px; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 12px; cursor: pointer; background: #fff;
+            transition: 0.2s;
+        }
+        .shipping-option:hover { background: #f0f0f0; }
+        .shipping-option input { width: auto; margin: 0; accent-color: #000; }
+        .ship-text { flex-grow: 1; font-size: 13px; font-weight: 500; }
+        .ship-price { font-weight: 800; }
+
+        /* Cart */
+        .cart-container { background: white; border: 1px solid #000; border-radius: 20px; padding: 15px; max-height: 400px; overflow-y: auto; }
+        .cart-item { display: flex; gap: 15px; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #eee; align-items: center; }
+        .cart-item img { width: 65px; height: 65px; object-fit: contain; background: #f9f9f9; border-radius: 8px; }
+
+        .payment-icons { display: flex; gap: 10px; margin-top: 10px; }
+        .payment-icons img { height: 18px; filter: grayscale(1); opacity: 0.6; }
+
+        /* Custom Modal */
+        #custom-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: white; padding: 35px; border-radius: 25px; border: 2px solid #000;
+            text-align: center; max-width: 320px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .modal-btn { 
+            margin-top: 20px; padding: 12px 35px; background: #000; color: #fff; 
+            border: none; border-radius: 25px; cursor: pointer; font-weight: 700; font-size: 14px;
+        }
+
+        .pay-btn {
+            width: 100%; padding: 20px; background: var(--accent-green); border: 1.5px solid #000;
+            border-radius: 15px; font-weight: 900; cursor: pointer; margin-top: 20px; font-size: 16px;
+        }
+
+        @media (max-width: 900px) { .checkout-grid { grid-template-columns: 1fr; } .page-wrapper { padding: 20px; } }
+    </style>
+</head>
+<body>
+
+    <div id="custom-modal">
+        <div class="modal-content">
+            <p id="modal-text" style="font-weight: 600; font-size: 16px;"></p>
+            <button class="modal-btn" onclick="closeModal()">OKAY</button>
+        </div>
+    </div>
+
+    <div class="page-wrapper">
+        <nav>
+            <div class="logo">Abstract<br>Earth</div>
+            <button type="button" class="clear-cart-btn" onclick="clearCart()">CLEAR CART</button>
+        </nav>
+
+        <form action="https://formspree.io/f/mbalenhlembali641@gmail.com" method="POST" id="checkout-form">
+            <div class="checkout-grid">
+                
+                <div class="forms-column">
+                    <div class="section-box">
+                        <h2>Personal Information</h2>
+                        <input type="text" name="Full Name" placeholder="First and Last Name" required>
+                        <div class="input-row">
+                            <input type="email" name="Email" placeholder="Email" required>
+                            <input type="tel" name="Phone" placeholder="Phone Number" required>
+                        </div>
+                    </div>
+
+                    <div class="section-box">
+                        <h2>Shipping Information</h2>
+                        <select name="Country" required>
+                            <option value="">Select Country/Region</option>
+                            <option value="South Africa">South Africa</option>
+                            <option value="International">International</option>
+                        </select>
+                        <input type="text" name="Address" placeholder="Street Address" required>
+                        <input type="text" name="Apartment" placeholder="Apartment, suite, etc. (optional)">
+                        <div class="input-row">
+                            <input type="text" name="City" placeholder="City" required>
+                            <input type="text" name="State_Province" placeholder="State / Province" required>
+                        </div>
+                        <input type="text" name="PostalCode" placeholder="Postal Code" required>
+                    </div>
+
+                    <div class="section-box">
+                        <h2>Shipping Method</h2>
+                        <label class="shipping-option">
+                            <input type="radio" name="shipping" value="100" onclick="updateTotals(100, 'Local Shipping')">
+                            <span class="ship-text">Local Shipping (6-8 days)</span>
+                            <span class="ship-price">R100</span>
+                        </label>
+                        <label class="shipping-option">
+                            <input type="radio" name="shipping" value="200" onclick="updateTotals(200, 'Standard Option')">
+                            <span class="ship-text">Standard Option (3-5 days)</span>
+                            <span class="ship-price">R200</span>
+                        </label>
+                    </div>
+
+                    <div class="section-box">
+                        <h2>Payment Details</h2>
+                        <input type="text" placeholder="Cardholder Name" required>
+                        <input type="text" placeholder="Card Number" required>
+                        <div class="input-row">
+                            <input type="text" placeholder="Expiry (MM/YY)" required>
+                            <input type="text" placeholder="CVV" required>
+                        </div>
+                        <div class="payment-icons">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal">
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="Order_Summary" id="email-cart-data">
+                    <input type="hidden" name="_subject" value="Hello there Abstract Earth! New Order Request">
+                </div>
+
+                <div class="summary-column">
+                    <div class="section-box">
+                        <h2>Order Summary</h2>
+                        <div class="cart-container" id="cart-display"></div>
+                        
+                        <div style="margin-top:20px; border-top: 1.5px solid #000; padding-top:20px;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                                <span>Items Subtotal</span><span id="subtotal">R0.00</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                                <span>Shipping Fee</span><span id="ship-cost">R0.00</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-weight:900; font-size:24px; margin-top:15px; color: #000;">
+                                <span>Total</span><span id="grand-total">R0.00</span>
+                            </div>
+                            <button type="submit" class="pay-btn" onclick="validateCheckout(event)">Confirm & Pay</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let currentSubtotal = 0;
+
+        function showModal(text) {
+            document.getElementById('modal-text').innerText = text;
+            document.getElementById('custom-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').style.display = 'none';
+        }
+
+        function loadCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const container = document.getElementById('cart-display');
+            let sub = 0;
+            let emailBody = "Hello there Abstract Earth!\n\nYou have a new order request:\n\n-- ITEMS ORDERED --\n";
+
+            if (cart.length === 0) {
+                container.innerHTML = "<p style='text-align:center; color:#888; padding:20px;'>No items in cart</p>";
+                return;
+            }
+
+            container.innerHTML = cart.map(item => {
+                sub += parseFloat(item.price);
+                emailBody += `Item: ${item.name} | Size: ${item.size} | Color: ${item.color} | Price: R${item.price}\n`;
+                return `
+                    <div class="cart-item">
+                        <img src="${item.img}">
+                        <div style="flex-grow:1">
+                            <p style="font-weight:700; font-size:14px;">${item.name}</p>
+                            <p style="font-size:12px; color:#555;">${item.size} / ${item.color}</p>
+                        </div>
+                        <p style="font-weight:800">R${item.price}</p>
+                    </div>`;
+            }).join('');
+
+            currentSubtotal = sub;
+            document.getElementById('subtotal').innerText = `R${sub.toFixed(2)}`;
+            document.getElementById('email-cart-data').value = emailBody;
+            updateTotals(0);
+        }
+
+        function updateTotals(cost) {
+            document.getElementById('ship-cost').innerText = `R${cost.toFixed(2)}`;
+            document.getElementById('grand-total').innerText = `R${(currentSubtotal + cost).toFixed(2)}`;
+        }
+
+        function clearCart() {
+            localStorage.removeItem('cart');
+            loadCart();
+            showModal("Cart has been cleared.");
+        }
+
+        function validateCheckout(e) {
+            const shipChecked = document.querySelector('input[name="shipping"]:checked');
+            if (!shipChecked) {
+                e.preventDefault();
+                showModal("Please select a shipping option");
+                return;
+            }
+            
+            // Append final total to the email hidden field
+            const finalTotal = document.getElementById('grand-total').innerText;
+            document.getElementById('email-cart-data').value += `\n-- ORDER TOTAL --\nTotal: ${finalTotal}`;
+        }
+
+        window.onload = loadCart;
+    </script>
+</body>
+</html>
